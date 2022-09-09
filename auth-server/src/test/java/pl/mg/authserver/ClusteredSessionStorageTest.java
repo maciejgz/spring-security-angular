@@ -1,8 +1,8 @@
 package pl.mg.authserver;
 
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import redis.clients.jedis.Jedis;
@@ -12,15 +12,14 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ClusteredSessionStorageTest {
-
+class ClusteredSessionStorageTest {
 
     private Jedis jedis;
     private TestRestTemplate testRestTemplate;
     private TestRestTemplate testRestTemplateWithAuth;
     private final String testUrl = "http://localhost:8082/";
 
-    @Before
+    @BeforeEach
     public void clearRedisData() {
         testRestTemplate = new TestRestTemplate();
         testRestTemplateWithAuth = new TestRestTemplate("user", "password", null);
@@ -30,19 +29,19 @@ public class ClusteredSessionStorageTest {
     }
 
     @Test
-    public void testRedisIsEmpty() {
+    void testRedisIsEmpty() {
         Set<String> result = jedis.keys("*");
         assertEquals(0, result.size());
     }
 
     @Test
-    public void testUnauthenticatedCantAccess() {
+    void testUnauthenticatedCantAccess() {
         ResponseEntity<String> result = testRestTemplate.getForEntity(testUrl, String.class);
         assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
     }
 
     @Test
-    public void testRedisControlsSession() {
+    void testRedisControlsSession() {
         ResponseEntity<String> result = testRestTemplateWithAuth.getForEntity(testUrl, String.class);
         assertEquals("{\"password\":null,\"username\":\"user\",\"authorities\":[{\"authority\":\"ROLE_USER\"}],\"accountNonExpired\":true,\"accountNonLocked\":true,\"credentialsNonExpired\":true,\"enabled\":true}", result.getBody()); //login worked
 
