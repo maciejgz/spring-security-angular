@@ -1,15 +1,11 @@
 package pl.mg.authserver.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.web.bind.annotation.*;
 import pl.mg.authserver.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.security.Principal;
-import java.util.Base64;
 
 @RestController
 @CrossOrigin(origins = {"*"}, maxAge = 3600)
@@ -20,12 +16,12 @@ public class ResourceController {
         return user.getUserName().equals("user") && user.getPassword().equals("password");
     }
 
-    @RequestMapping("/user")
-    public Principal user(HttpServletRequest request, HttpSession session) {
-        String authToken = request.getHeader("Authorization").substring("Basic".length()).trim();
-
+    @GetMapping(value = "/")
+    public org.springframework.security.core.userdetails.User user(HttpServletRequest request, HttpSession session) {
         System.out.println("Session id: " + session.getId());
-
-        return () -> new String(Base64.getDecoder().decode(authToken)).split(":")[0];
+        System.out.println("creation time: " + session.getCreationTime());
+        System.out.println("max inactive interval: " + session.getMaxInactiveInterval());
+        SecurityContext secContext = (SecurityContext) session.getAttribute("SPRING_SECURITY_CONTEXT");
+        return ((org.springframework.security.core.userdetails.User) secContext.getAuthentication().getPrincipal());
     }
 }

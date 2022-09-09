@@ -27,6 +27,5 @@ public class JsessionFilter extends GenericFilterBean {
             }
         }
         chain.doFilter(request, response);
-
     }
 }
